@@ -23,11 +23,13 @@ func init() {
 		common.Logger.Info("APIKEY: %s", apikey)
 	}
 	go func() {
+		globalChat = binglib.NewChat("").SetBingBaseUrl("http://localhost:" + common.PORT).SetSydneyBaseUrl("ws://localhost:" + common.PORT).SetBypassServer(common.BypassServer)
+		globalImage = binglib.NewImage("").SetBingBaseUrl("http://localhost:" + common.PORT).SetBypassServer(common.BypassServer)
 		time.Sleep(200 * time.Millisecond)
 		t, _ := getCookie("", "", "")
 		common.Logger.Info("BingAPI Ready!")
-		globalChat = binglib.NewChat(t).SetBingBaseUrl("http://localhost:" + common.PORT).SetSydneyBaseUrl("ws://localhost:" + common.PORT).SetBypassServer(common.BypassServer)
-		globalImage = binglib.NewImage(t).SetBingBaseUrl("http://localhost:" + common.PORT).SetBypassServer(common.BypassServer)
+		globalChat.SetCookies(t)
+		globalImage.SetCookies(t)
 	}()
 }
 
@@ -54,7 +56,7 @@ func getCookie(reqCookie, convId, rid string) (cookie string, err error) {
 	if err != nil {
 		return
 	}
-	resp, status, err := binglib.Bypass(common.BypassServer, reqCookie, "local-gen-"+hex.NewUUID(), IG, convId, rid, T)
+	resp, status, err := binglib.Bypass(common.BypassServer, reqCookie, "local-gen-"+hex.NewUUID(), IG, convId, rid, T, "")
 	if err != nil || status != http.StatusOK {
 		common.Logger.Error("Bypass Error: %v", err)
 		return
